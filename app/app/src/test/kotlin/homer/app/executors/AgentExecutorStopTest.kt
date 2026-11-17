@@ -238,7 +238,7 @@ class AgentExecutorStopTest : AgentExecutorTestBase() {
     @Test
     fun `a soft run deadline stops the run and names run_deadline`() =
         runTest {
-            val soft = System.currentTimeMillis() / 1000 + 1
+            val soft = System.currentTimeMillis() / 1000 + 2
             val hard = soft + 3600
             every { mockSession.runDeadline } returns RunDeadline(softEpochSec = soft, hardEpochSec = hard)
             val agent = stoppableAgent(listOf(saveReport()))
@@ -248,7 +248,7 @@ class AgentExecutorStopTest : AgentExecutorTestBase() {
             coEvery { mockExecutor.execute(any(), capture(contexts), any()) } coAnswers {
                 if (contexts.size == 1) {
                     // The deadline is read off the wall clock, so the step has to outlive it in real time.
-                    withContext(Dispatchers.IO) { Thread.sleep(1_200) }
+                    withContext(Dispatchers.IO) { Thread.sleep(2_500) }
                     throw CancellationException("Timeout reached. 1s.")
                 }
                 TestFixtures.mockCommandResult(exitCode = 0)
@@ -270,7 +270,7 @@ class AgentExecutorStopTest : AgentExecutorTestBase() {
     @Test
     fun `a stop between steps names the step that completed after the deadline passed`() =
         runTest {
-            val soft = System.currentTimeMillis() / 1000 + 1
+            val soft = System.currentTimeMillis() / 1000 + 2
             val hard = soft + 3600
             every { mockSession.runDeadline } returns RunDeadline(softEpochSec = soft, hardEpochSec = hard)
             val agent =
@@ -291,7 +291,7 @@ class AgentExecutorStopTest : AgentExecutorTestBase() {
                     // The deadline is read off the wall clock, so the step has to outlive it in real
                     // time. The executor caps the step's timeout but does not wrap it in withTimeout,
                     // so a command can finish after the cap has passed.
-                    withContext(Dispatchers.IO) { Thread.sleep(1_200) }
+                    withContext(Dispatchers.IO) { Thread.sleep(2_500) }
                 }
                 TestFixtures.mockCommandResult(exitCode = 0)
             }
@@ -317,7 +317,7 @@ class AgentExecutorStopTest : AgentExecutorTestBase() {
     @Test
     fun `a stop between steps names a when-skipped step too, and its row carries no stoppedBy`() =
         runTest {
-            val soft = System.currentTimeMillis() / 1000 + 1
+            val soft = System.currentTimeMillis() / 1000 + 2
             val hard = soft + 3600
             every { mockSession.runDeadline } returns RunDeadline(softEpochSec = soft, hardEpochSec = hard)
             val agent =
@@ -338,7 +338,7 @@ class AgentExecutorStopTest : AgentExecutorTestBase() {
             // The `when:` predicate evaluates false through the shell — and the evaluation itself
             // outlives the soft deadline, which is read again before the next step starts.
             coEvery { mockShell.cmd(any(), any(), any(), any(), any(), any()) } answers {
-                Thread.sleep(1_200)
+                Thread.sleep(2_500)
                 TestFixtures.mockCommandResult(exitCode = 1, stdOut = arg(1), stdErr = arg(2))
             }
             val stops = mutableListOf<RunStop>()
