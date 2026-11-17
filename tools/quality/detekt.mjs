@@ -42,7 +42,7 @@ export function main([outDir = 'reports/quality/detekt']) {
   const reports = fs.globSync(REPORTS).sort();
   if (reports.length === 0) throw new Error(`no ${REPORTS}: did detektMain run?`);
   const findings = sortFindings(reports.flatMap((file) => parseSarif(JSON.parse(fs.readFileSync(file, 'utf8')), process.cwd())));
-  const title = 'detekt findings (coroutines, exceptions, potential bugs, unused code)';
+  const title = 'detekt findings (coroutines, exceptions, potential bugs, unused code, file names)';
   return writeCheck(outDir, 'detekt', title, findings, { reports: reports.length }).split('\n').slice(0, 21).join('\n') + '\n';
 }
 
